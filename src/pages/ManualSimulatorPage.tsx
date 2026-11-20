@@ -84,16 +84,15 @@ export default function ManualSimulatorPage() {
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]" data-eyebrow>
-          Biomechanical analysis
-        </p>
-        <h2 className="mt-1 text-2xl font-semibold text-[#00183A]">Manual Input &amp; What-If Simulator</h2>
-        <p className="mt-1 text-sm text-[#64748B]">
-          Adjust spinopelvic measurements and compare the predicted clinical outcome.
+        <h1 className="text-lg font-semibold tracking-tight text-[#1E293B]">
+          Parameter Entry
+        </h1>
+        <p className="mt-0.5 text-xs text-[#64748B]">
+          Direct spinopelvic parameter input and real-time biomechanical classification.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1.62fr)_minmax(340px,1fr)]">
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[1fr_340px]">
         <ManualForm
           features={features}
           instantPredict={instantPredict}
@@ -103,7 +102,7 @@ export default function ManualSimulatorPage() {
           onPreset={handlePreset}
           onCalculate={() => void runPrediction(features)}
         />
-        <div className="lg:sticky lg:top-24">
+        <div className="lg:sticky lg:top-6">
           <ResultCard data={result} loading={loading} error={error} />
         </div>
       </div>

@@ -1,7 +1,4 @@
-// ============================================================
-// src/services/api.ts — Dual-mode API service (Mock / Real)
-// ============================================================
-
+// src/services/api.ts - API service
 import type {
   HealthResponse,
   XrayProcessResponse,
@@ -16,14 +13,11 @@ import type {
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
-// ── Helpers ──────────────────────────────────────────────────
-
-/** Artificial delay for mock mode */
+// Helpers
 function delay(ms = 400): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** Parse a fetch response, throwing on non-OK status */
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: res.statusText }));
@@ -32,8 +26,7 @@ async function handleResponse<T>(res: Response): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-// ── Clinical flag helpers (used by mock mode) ────────────────
-
+// Clinical flag helpers (mock mode fallback)
 interface Range {
   low: number;
   high: number;
@@ -56,7 +49,7 @@ function buildClinicalFlags(features: PredictRequest): ClinicalFlags {
     const r = CLINICAL_RANGES[key];
     const v = features[key];
     if (key === 'degree_spondylolisthesis') {
-      flags[key] = v < r.high ? `Normal (<${r.high}${r.unit})` : `Abnormal (≥${r.high}${r.unit})`;
+      flags[key] = v < r.high ? `Normal (<${r.high}${r.unit})` : `Elevated (≥${r.high}${r.unit})`;
     } else if (v < r.low) {
       flags[key] = `Low (<${r.low}${r.unit})`;
     } else if (v > r.high) {
@@ -68,7 +61,6 @@ function buildClinicalFlags(features: PredictRequest): ClinicalFlags {
   return flags;
 }
 
-/** Simple rule-based mock classifier */
 function mockClassify(f: PredictRequest): { prediction: string; probabilities: Record<string, number> } {
   const spondy = f.degree_spondylolisthesis >= 20;
   const hernia =
@@ -94,8 +86,6 @@ function mockClassify(f: PredictRequest): { prediction: string; probabilities: R
   };
 }
 
-// ── Required CSV columns ─────────────────────────────────────
-
 const REQUIRED_COLUMNS: (keyof SpinopelvicFeatures)[] = [
   'pelvic_incidence',
   'pelvic_tilt',
@@ -105,11 +95,6 @@ const REQUIRED_COLUMNS: (keyof SpinopelvicFeatures)[] = [
   'degree_spondylolisthesis',
 ];
 
-// ── Public API Functions ─────────────────────────────────────
-
-/**
- * GET /api/health
- */
 export async function checkHealth(): Promise<HealthResponse> {
   if (USE_MOCK) {
     await delay(200);
@@ -119,9 +104,6 @@ export async function checkHealth(): Promise<HealthResponse> {
   return handleResponse<HealthResponse>(res);
 }
 
-/**
- * POST /api/xray/process — upload X-Ray file
- */
 export async function processXray(file: File): Promise<XrayProcessResponse> {
   if (USE_MOCK) {
     await delay(400);
@@ -155,9 +137,6 @@ export async function processXray(file: File): Promise<XrayProcessResponse> {
   return handleResponse<XrayProcessResponse>(res);
 }
 
-/**
- * POST /api/predict — single prediction
- */
 export async function predictSingle(
   features: PredictRequest,
 ): Promise<PredictResponse> {
@@ -179,9 +158,6 @@ export async function predictSingle(
   return handleResponse<PredictResponse>(res);
 }
 
-/**
- * POST /api/predict/batch — batch CSV prediction
- */
 export async function predictBatch(file: File): Promise<BatchPredictResponse> {
   if (USE_MOCK) {
     await delay(600);
@@ -193,7 +169,6 @@ export async function predictBatch(file: File): Promise<BatchPredictResponse> {
 
     const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
 
-    // Validate required columns
     for (const col of REQUIRED_COLUMNS) {
       if (!headers.includes(col)) {
         throw new Error(`Missing required column: ${col}`);
@@ -201,7 +176,6 @@ export async function predictBatch(file: File): Promise<BatchPredictResponse> {
     }
 
     const colIndices = REQUIRED_COLUMNS.map((col) => headers.indexOf(col));
-
     const results: BatchPredictRow[] = [];
     const summary: Record<string, number> = {};
 
@@ -246,7 +220,6 @@ export async function predictBatch(file: File): Promise<BatchPredictResponse> {
     };
   }
 
-  // Real mode
   const form = new FormData();
   form.append('file', file);
   const res = await fetch(`${API_BASE}/api/predict/batch`, {

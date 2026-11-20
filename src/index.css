@@ -1,72 +1,121 @@
 @import "tailwindcss";
 
+/*
+  Design Tokens: Spine Health Clinical Design System
+  Accent Color: #0F5C7A (Clinical Deep Slate-Teal)
+  Chosen for its calm, authoritative, non-distracting presence in medical diagnostic software.
+*/
 :root {
-  font-family: "Geist", "Inter", system-ui, sans-serif;
-  color: #00183A;
-  background: #F2F2F2;
-  font-synthesis: none;
+  --color-accent: #0F5C7A;
+  --color-accent-hover: #0C4A62;
+  --color-accent-tint: #F0F6F9;
+  --color-accent-border: #B8D3E0;
+
+  --color-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-border: #E2E8F0;
+  --color-border-strong: #CBD5E1;
+
+  --color-text-primary: #1E293B;
+  --color-text-secondary: #64748B;
+  --color-text-tertiary: #94A3B8;
+
+  --color-status-normal: #15803D;
+  --color-status-normal-bg: #F0FDF4;
+  --color-status-normal-border: #BBF7D0;
+
+  --color-status-warning: #B45309;
+  --color-status-warning-bg: #FFFBEB;
+  --color-status-warning-border: #FDE68A;
+
+  --color-status-danger: #B91C1C;
+  --color-status-danger-bg: #FEF2F2;
+  --color-status-danger-border: #FECACA;
+
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   text-rendering: optimizeLegibility;
-  --navy: #00183A;
-  --apricot: #F59659;
-  --apricot-hover: #E28346;
-  --mist: #F2F2F2;
-  --clinical-white: #FFFFFF;
-  --hairline: #E2E8F0;
-  --control: #CBD5E1;
-  --muted: #475569;
-  --caption: #64748B;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-* { box-sizing: border-box; }
-html { background: var(--mist); }
-body {
+* {
+  box-sizing: border-box;
+}
+
+html, body {
   margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background: var(--mist);
-  font-family: "Geist", "Inter", system-ui, sans-serif;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  accent-color: var(--color-accent);
 }
 
-button, input, select, textarea { font: inherit; }
-button, input, select { border-radius: 4px; }
-svg { stroke-width: 1.5; }
-button { cursor: pointer; }
-button:disabled { cursor: not-allowed; }
-h1, h2, h3, h4, h5, h6 { color: var(--navy); letter-spacing: -0.02em; }
-
-.eyebrow, [data-eyebrow] {
-  display: flex; align-items: center; gap: 8px;
-  color: var(--caption); font-size: 11px; font-weight: 500;
-  letter-spacing: 0.08em; text-transform: uppercase;
-}
-.eyebrow::before, [data-eyebrow]::before {
-  width: 5px; height: 5px; flex: 0 0 5px;
-  background: var(--navy); content: "";
-}
-
-.tabular-nums, table, input[type="number"], input[type="range"], .numeric {
+.tabular-nums, table, input[type="number"], .font-mono-numbers {
+  font-family: 'IBM Plex Mono', monospace;
   font-variant-numeric: tabular-nums;
 }
 
+/* Remove default browser spinner buttons from number inputs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Clinical range slider with accent thumb and neutral track */
 input[type="range"] {
-  width: 100%; height: 4px; appearance: none;
-  border: 0; border-radius: 2px; background: var(--hairline); outline: none;
+  width: 100%;
+  height: 4px;
+  appearance: none;
+  border-radius: 2px;
+  background: var(--color-border);
+  outline: none;
 }
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 4px; border-radius: 2px; background: transparent;
-}
+
 input[type="range"]::-webkit-slider-thumb {
-  width: 14px; height: 14px; margin-top: -5px; appearance: none;
-  border: 2px solid #FFFFFF; border-radius: 50%; background: var(--navy);
-  box-shadow: 0 0 0 1px var(--navy);
+  width: 14px;
+  height: 14px;
+  appearance: none;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2px solid #FFFFFF;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 92, 122, 0.25);
+  transition: transform 0.1s ease;
 }
-input[type="range"]::-moz-range-track {
-  height: 4px; border: 0; border-radius: 2px; background: var(--hairline);
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
 }
-input[type="range"]::-moz-range-progress {
-  height: 4px; border-radius: 2px; background: var(--navy);
-}
+
 input[type="range"]::-moz-range-thumb {
-  width: 12px; height: 12px; border: 2px solid #FFFFFF;
-  border-radius: 50%; background: var(--navy); box-shadow: 0 0 0 1px var(--navy);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2px solid #FFFFFF;
+  cursor: pointer;
+}
+
+/* Subtle, unobtrusive scrollbar for the main content area */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
 }

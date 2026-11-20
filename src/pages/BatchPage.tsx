@@ -1,13 +1,13 @@
 import { useMemo, useRef, useState } from 'react';
 import {
-  AlertTriangle,
-  Download,
-  FileSpreadsheet,
-  Loader2,
-  Search,
-  Upload,
-  X,
-} from 'lucide-react';
+  LuFileSpreadsheet,
+  LuUpload,
+  LuDownload,
+  LuSearch,
+  LuX,
+  LuTriangleAlert,
+  LuLoaderCircle,
+} from 'react-icons/lu';
 import { predictBatch } from '../services/api';
 import type { BatchPredictResponse, SpinopelvicFeatures } from '../types/spine';
 
@@ -26,7 +26,7 @@ function escapeCsv(value: unknown): string {
 }
 
 function formatNumber(value: number): string {
-  return Number.isFinite(value) ? value.toLocaleString(undefined, { maximumFractionDigits: 3 }) : '—';
+  return Number.isFinite(value) ? value.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '-';
 }
 
 export default function BatchPage() {
@@ -70,7 +70,7 @@ export default function BatchPage() {
     setClassFilter('all');
 
     if (!/\.csv$/i.test(file.name)) {
-      setError('Invalid file format. Select a file with a .csv extension.');
+      setError('Invalid file format. Select a valid .csv file.');
       return;
     }
     if (file.size === 0) {
@@ -86,7 +86,7 @@ export default function BatchPage() {
       setResponse(result);
     } catch (caught) {
       if (requestRef.current !== requestId) return;
-      setError(caught instanceof Error ? caught.message : 'The batch request failed unexpectedly.');
+      setError(caught instanceof Error ? caught.message : 'Batch analysis failed unexpectedly.');
     } finally {
       if (requestRef.current === requestId) setLoading(false);
     }
@@ -136,7 +136,7 @@ export default function BatchPage() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'batch-predictions-filtered.csv';
+    anchor.download = 'spine-batch-predictions.csv';
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);
@@ -144,41 +144,29 @@ export default function BatchPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <header>
-        <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]" data-eyebrow>Clinical dataset</p>
-        <h2 className="mt-1 text-2xl font-semibold text-[#00183A]">Batch CSV Analysis</h2>
-        <p className="mt-1 max-w-2xl text-sm text-[#64748B]">
-          Upload a CSV containing the six spinopelvic features for batch prediction.
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-lg font-semibold tracking-tight text-[#1E293B]">
+          Cohort Analysis
+        </h1>
+        <p className="mt-0.5 text-xs text-[#64748B]">
+          Batch processing of multi-subject CSV datasets for automated spinopelvic classification.
         </p>
-      </header>
+      </div>
 
       <section
-        className={`rounded-md border border-dashed p-5 transition-colors ${
+        className={`rounded-[8px] border border-dashed p-6 transition-colors ${
           dragActive
-            ? 'border-[#00183A] bg-[#F2F2F2]'
-            : 'border-[#CBD5E1] bg-white hover:border-[#64748B]'
+            ? 'border-[#0F5C7A] bg-[#F0F6F9]'
+            : 'border-[#CBD5E1] bg-white hover:border-[#94A3B8]'
         }`}
-        onDragEnter={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          setDragActive(true);
-        }}
-        onDragOver={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          setDragActive(true);
-        }}
-        onDragLeave={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
+        onDragEnter={(e) => { e.preventDefault(); setDragActive(true); }}
+        onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+        onDragLeave={(e) => { e.preventDefault(); setDragActive(false); }}
+        onDrop={(e) => {
+          e.preventDefault();
           setDragActive(false);
-        }}
-        onDrop={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          setDragActive(false);
-          const file = event.dataTransfer.files[0];
+          const file = e.dataTransfer.files[0];
           if (file) void processFile(file);
         }}
       >
@@ -187,36 +175,36 @@ export default function BatchPage() {
           type="file"
           accept=".csv,text/csv"
           className="sr-only"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
+          onChange={(e) => {
+            const file = e.target.files?.[0];
             if (file) void processFile(file);
-            event.target.value = '';
+            e.target.value = '';
           }}
         />
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border border-[#E2E8F0] bg-[#F2F2F2] text-[#00183A]">
-              <FileSpreadsheet className="h-5 w-5" />
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[6px] border border-[#E2E8F0] bg-[#F8FAFC] text-[#0F5C7A]">
+              <LuFileSpreadsheet className="h-5 w-5" />
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-[#00183A]">
-                {selectedFile ? selectedFile.name : 'Drop a CSV file here'}
+            <div>
+              <p className="text-xs font-semibold text-[#1E293B]">
+                {selectedFile ? selectedFile.name : 'Select or drag CSV file'}
               </p>
-              <p className="mt-0.5 text-xs text-[#64748B]">
+              <p className="text-[11px] text-[#64748B]">
                 {selectedFile
                   ? `${(selectedFile.size / 1024).toFixed(1)} KB`
-                  : 'Required: 6 feature columns · .csv only'}
+                  : 'Requires 6 spinopelvic feature columns'}
               </p>
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex items-center gap-2">
             {selectedFile && (
               <button
                 type="button"
                 onClick={clearSelection}
-                className="inline-flex h-9 items-center gap-1.5 rounded-sm border border-[#CBD5E1] px-3 text-sm text-[#00183A] hover:bg-[#F2F2F2]"
+                className="inline-flex h-8 items-center gap-1 rounded-[6px] border border-[#E2E8F0] bg-white px-2.5 text-xs font-medium text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#1E293B]"
               >
-                <X className="h-4 w-4" />
+                <LuX className="h-3.5 w-3.5" />
                 Clear
               </button>
             )}
@@ -224,133 +212,123 @@ export default function BatchPage() {
               type="button"
               onClick={() => inputRef.current?.click()}
               disabled={loading}
-              className="inline-flex h-9 items-center gap-2 rounded-sm bg-[#F59659] px-3.5 text-sm font-semibold text-[#00183A] hover:bg-[#E28346] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-[#0F5C7A] px-3.5 text-xs font-semibold text-white transition hover:bg-[#0C4A62] disabled:cursor-not-allowed disabled:bg-[#E2E8F0] disabled:text-[#94A3B8]"
             >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-              {loading ? 'Analyzing…' : 'Choose CSV'}
+              {loading ? <LuLoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <LuUpload className="h-3.5 w-3.5" />}
+              {loading ? 'Evaluating...' : 'Choose File'}
             </button>
           </div>
         </div>
       </section>
 
       {error && (
-        <div role="alert" className="flex items-start gap-3 rounded-md border border-[#E2E8F0] bg-white px-4 py-3 text-sm text-[#475569]">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#B91C1C]" />
+        <div role="alert" className="flex items-start gap-2.5 rounded-[8px] border border-[#FECACA] bg-[#FEF2F2] p-4 text-xs text-[#991B1B]">
+          <LuTriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-[#B91C1C]" />
           <div>
-            <p className="font-semibold">Batch analysis failed</p>
-            <p className="mt-0.5 text-[#64748B]">{error}</p>
+            <p className="font-semibold text-[#991B1B]">Batch evaluation failed</p>
+            <p className="mt-0.5 text-[#B91C1C]">{error}</p>
           </div>
         </div>
       )}
 
       {loading && (
-        <div className="flex items-center gap-3 rounded-md border border-[#E2E8F0] bg-white px-4 py-5 text-sm text-[#475569]">
-          <Loader2 className="h-5 w-5 animate-spin text-[#00183A]" />
-          Processing CSV and generating predictions…
+        <div className="flex items-center gap-3 rounded-[8px] border border-[#E2E8F0] bg-white p-5 text-xs text-[#64748B]">
+          <LuLoaderCircle className="h-4 w-4 animate-spin text-[#0F5C7A]" />
+          Processing vectorized CSV dataset...
         </div>
       )}
 
       {response && (
         <>
-          <section className="grid grid-cols-2 divide-x divide-y divide-[#E2E8F0] overflow-hidden rounded-md border border-[#E2E8F0] bg-white lg:grid-cols-4 lg:divide-y-0" aria-label="Batch summary">
-            <div className="px-4 py-4">
-              <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]">Total rows</p>
-              <p className="mt-1 text-2xl font-semibold tabular-nums text-[#00183A]">{response.total_rows}</p>
+          <section className="grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Batch summary">
+            <div className="rounded-[8px] border border-[#E2E8F0] bg-white p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#64748B]">Total Rows</p>
+              <p className="mt-1 font-mono-numbers text-xl font-bold text-[#1E293B]">{response.total_rows}</p>
             </div>
             {Object.entries(response.summary).sort(([a], [b]) => a.localeCompare(b)).map(([label, count]) => (
-              <div key={label} className="px-4 py-4">
-                <p className="truncate text-[11px] font-medium uppercase tracking-[0.08em] text-[#64748B]" title={label}>{label}</p>
-                <p className="mt-1 text-2xl font-semibold tabular-nums text-[#00183A]">{count}</p>
+              <div key={label} className="rounded-[8px] border border-[#E2E8F0] bg-white p-4">
+                <p className="truncate text-[10px] font-semibold uppercase tracking-wider text-[#64748B]">{label}</p>
+                <p className="mt-1 font-mono-numbers text-xl font-bold text-[#1E293B]">{count}</p>
               </div>
             ))}
           </section>
 
-          <section className="overflow-hidden rounded-md border border-[#E2E8F0] bg-white">
-            <div className="flex flex-col gap-3 border-b border-[#E2E8F0] bg-[#F2F2F2] p-3 md:flex-row md:items-center md:justify-between">
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <label className="relative block">
-                  <span className="sr-only">Search predictions</span>
-                  <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-[#64748B]" />
+          <section className="overflow-hidden rounded-[8px] border border-[#E2E8F0] bg-white">
+            <div className="flex flex-col gap-3 border-b border-[#E2E8F0] p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="relative">
+                  <LuSearch className="pointer-events-none absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#94A3B8]" />
                   <input
                     type="search"
                     value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Search rows"
-                    className="h-9 w-full rounded-sm border border-[#CBD5E1] bg-white pl-9 pr-3 text-sm text-[#00183A] placeholder:text-[#64748B] focus:border-[#00183A] focus:outline-none focus:ring-1 focus:ring-[#00183A] sm:w-56"
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search rows..."
+                    className="h-8 rounded-[6px] border border-[#CBD5E1] bg-white pl-8 pr-2.5 text-xs text-[#1E293B] placeholder:text-[#94A3B8] focus:border-[#0F5C7A] focus:outline-none focus:ring-1 focus:ring-[#0F5C7A]"
                   />
-                </label>
-                <label>
-                  <span className="sr-only">Filter by prediction class</span>
-                  <select
-                    value={classFilter}
-                    onChange={(event) => setClassFilter(event.target.value)}
-                    className="h-9 w-full rounded-sm border border-[#CBD5E1] bg-white px-3 text-sm text-[#00183A] focus:border-[#00183A] focus:outline-none focus:ring-1 focus:ring-[#00183A] sm:w-44"
-                  >
-                    <option value="all">All classes</option>
-                    {classes.map((label) => (
-                      <option key={label} value={label}>{label}</option>
-                    ))}
-                  </select>
-                </label>
+                </div>
+                <select
+                  value={classFilter}
+                  onChange={(e) => setClassFilter(e.target.value)}
+                  className="h-8 rounded-[6px] border border-[#CBD5E1] bg-white px-2.5 text-xs text-[#1E293B] focus:border-[#0F5C7A] focus:outline-none focus:ring-1 focus:ring-[#0F5C7A]"
+                >
+                  <option value="all">All diagnoses</option>
+                  {classes.map((label) => (
+                    <option key={label} value={label}>{label}</option>
+                  ))}
+                </select>
               </div>
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-xs tabular-nums text-[#64748B]">
+
+              <div className="flex items-center justify-between gap-3 sm:justify-end">
+                <span className="font-mono-numbers text-[11px] text-[#64748B]">
                   {filteredRows.length} of {response.results.length} rows
                 </span>
                 <button
                   type="button"
                   onClick={exportCsv}
                   disabled={filteredRows.length === 0}
-                  className="inline-flex h-9 items-center gap-2 rounded-sm bg-[#F59659] px-3 text-sm font-semibold text-[#00183A] hover:bg-[#E28346] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-[#E2E8F0] bg-white px-2.5 text-xs font-semibold text-[#1E293B] transition hover:bg-[#F8FAFC] disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <Download className="h-4 w-4" />
+                  <LuDownload className="h-3.5 w-3.5" />
                   Export CSV
                 </button>
               </div>
             </div>
 
-            {response.results.length === 0 ? (
-              <div className="px-6 py-12 text-center">
-                <p className="font-medium text-[#00183A]">No prediction rows returned</p>
-                <p className="mt-1 text-sm text-[#64748B]">The uploaded CSV produced a zero-row response.</p>
-              </div>
-            ) : filteredRows.length === 0 ? (
-              <div className="px-6 py-12 text-center">
-                <p className="font-medium text-[#00183A]">No rows match this filter</p>
-                <p className="mt-1 text-sm text-[#64748B]">Try another search or prediction class.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[1080px] border-collapse text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-[#E2E8F0] bg-[#F2F2F2] text-[11px] uppercase tracking-[0.08em] text-[#64748B]">
-                      <th className="px-4 py-3 font-semibold">Row</th>
-                      {FEATURE_COLUMNS.map(({ key, label }) => (
-                        <th key={key} className="px-3 py-3 font-semibold">{label}</th>
-                      ))}
-                      <th className="px-4 py-3 font-semibold">Prediction</th>
-                      <th className="px-4 py-3 font-semibold">Confidence</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredRows.map((row) => (
-                      <tr key={row.row_index} className="border-b border-[#E2E8F0] last:border-0 hover:bg-[#F2F2F2]/70">
-                        <td className="px-4 py-3 tabular-nums text-[#64748B]">{row.row_index}</td>
-                        {FEATURE_COLUMNS.map(({ key }) => (
-                          <td key={key} className="px-3 py-3 tabular-nums text-[#475569]">
-                            {formatNumber(row[key])}
-                          </td>
-                        ))}
-                        <td className="px-4 py-3 font-medium text-[#00183A]">{row.prediction}</td>
-                        <td className="px-4 py-3 tabular-nums text-[#00183A]">
-                          {formatNumber(row.confidence * 100)}%
-                        </td>
-                      </tr>
+            <div
+              tabIndex={0}
+              role="region"
+              aria-label="Batch predictions table"
+              className="max-h-[500px] overflow-auto"
+            >
+              <table className="w-full min-w-[900px] border-collapse text-left text-xs">
+                <thead className="sticky top-0 z-10 border-b border-[#E2E8F0] bg-[#F8FAFC] text-[10px] font-semibold uppercase tracking-wider text-[#64748B]">
+                  <tr>
+                    <th className="px-3.5 py-2.5">Row</th>
+                    {FEATURE_COLUMNS.map(({ key, label }) => (
+                      <th key={key} className="px-3.5 py-2.5">{label}</th>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    <th className="px-3.5 py-2.5">Prediction</th>
+                    <th className="px-3.5 py-2.5">Confidence</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#F1F5F9]">
+                  {filteredRows.map((row) => (
+                    <tr key={row.row_index} className="hover:bg-[#F8FAFC]">
+                      <td className="px-3.5 py-2.5 font-mono-numbers text-[#64748B]">{row.row_index + 1}</td>
+                      {FEATURE_COLUMNS.map(({ key }) => (
+                        <td key={key} className="px-3.5 py-2.5 font-mono-numbers text-[#1E293B]">
+                          {formatNumber(row[key])}
+                        </td>
+                      ))}
+                      <td className="px-3.5 py-2.5 font-medium text-[#1E293B]">{row.prediction}</td>
+                      <td className="px-3.5 py-2.5 font-mono-numbers font-medium text-[#1E293B]">
+                        {formatNumber(row.confidence * 100)}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         </>
       )}

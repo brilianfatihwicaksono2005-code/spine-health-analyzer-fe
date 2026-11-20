@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react';
+import { LuCheck } from 'react-icons/lu';
 import { LANDMARK_LABELS, LANDMARK_ORDER, type Landmarks } from '../types/spine';
 
 interface LandmarkChecklistProps {
@@ -14,17 +14,21 @@ export default function LandmarkChecklist({
   nextKey,
   onSelect,
 }: LandmarkChecklistProps) {
+  const completedCount = LANDMARK_ORDER.filter((key) => Boolean(landmarks[key])).length;
+
   return (
-    <section className="rounded-md border border-[#E2E8F0] bg-white" aria-labelledby="landmark-checklist-title">
+    <section className="rounded-[8px] border border-[#E2E8F0] bg-white" aria-labelledby="landmark-checklist-title">
       <div className="border-b border-[#E2E8F0] px-4 py-3">
         <div className="flex items-center justify-between">
-          <h2 id="landmark-checklist-title" className="text-sm font-semibold text-[#00183A]">Landmark checklist</h2>
-          <span className="tabular-nums text-xs font-medium text-[#64748B]">
-            {LANDMARK_ORDER.filter((key) => Boolean(landmarks[key])).length}/7
+          <h2 id="landmark-checklist-title" className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+            Landmarks
+          </h2>
+          <span className="font-mono-numbers text-xs font-semibold text-[#1E293B]">
+            {completedCount} / 7
           </span>
         </div>
       </div>
-      <ol className="divide-y divide-[#E2E8F0] px-2 py-1">
+      <ol className="divide-y divide-[#F1F5F9] p-2">
         {LANDMARK_ORDER.map((key, index) => {
           const complete = Boolean(landmarks[key]);
           const next = !complete && nextKey === key;
@@ -35,28 +39,31 @@ export default function LandmarkChecklist({
                 type="button"
                 onClick={() => onSelect(key)}
                 aria-current={next ? 'step' : undefined}
-                aria-pressed={active}
-                className={`flex w-full items-center gap-3 rounded-sm px-2 py-2.5 text-left transition-colors focus:outline-none focus:ring-2 focus:ring-[#00183A] focus:ring-offset-2 ${
-                  active ? 'bg-[#F59659]/15 text-[#00183A]' : 'text-[#475569] hover:bg-[#F2F2F2]'
+                className={`flex w-full items-center gap-2.5 rounded-[6px] p-2 text-left text-xs transition-colors ${
+                  active
+                    ? 'bg-[#F0F6F9] font-medium text-[#0F5C7A]'
+                    : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#1E293B]'
                 }`}
               >
                 <span
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-xs font-bold ${
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] font-mono-numbers text-[11px] font-semibold ${
                     complete
-                      ? 'bg-[#00183A] text-white'
+                      ? 'bg-[#0F5C7A] text-white'
                       : active
-                        ? 'border-2 border-[#F59659] bg-white text-[#00183A]'
-                        : 'border border-[#CBD5E1] bg-white text-[#64748B]'
+                      ? 'border border-[#0F5C7A] bg-white text-[#0F5C7A]'
+                      : 'border border-[#CBD5E1] bg-[#F8FAFC] text-[#64748B]'
                   }`}
                 >
-                  {complete ? <Check aria-hidden="true" className="h-4 w-4" /> : index + 1}
+                  {complete ? <LuCheck className="h-3 w-3 stroke-[2.5]" /> : index + 1}
                 </span>
-                <span className="min-w-0">
-                  <span className="block text-xs font-semibold leading-4">{LANDMARK_LABELS[key]}</span>
-                  <span className={`mt-0.5 block text-[11px] ${next ? 'text-[#00183A]' : 'text-[#64748B]'}`}>
-                    {complete ? 'Placed · drag to adjust' : next ? 'Next to place' : 'Not placed'}
+                <div className="min-w-0 flex-1">
+                  <span className="block truncate font-medium text-[#1E293B]">
+                    {LANDMARK_LABELS[key]}
                   </span>
-                </span>
+                  <span className="block text-[10px] text-[#64748B]">
+                    {complete ? 'Positioned' : next ? 'Next landmark' : 'Pending'}
+                  </span>
+                </div>
               </button>
             </li>
           );

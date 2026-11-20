@@ -1,5 +1,5 @@
 // ============================================================
-// src/types/spine.ts — TypeScript interfaces matching Backend API Contract
+// src/types/spine.ts - TypeScript interfaces matching Backend API Contract
 // ============================================================
 
 /** Coordinate point in pixel space */
@@ -67,7 +67,7 @@ export interface XrayProcessResponse {
 
 // ── POST /api/predict ────────────────────────────────────────
 
-/** The 6 spinopelvic features — also the predict request payload */
+/** The 6 spinopelvic features - also the predict request payload */
 export interface SpinopelvicFeatures {
   pelvic_incidence: number;
   pelvic_tilt: number;

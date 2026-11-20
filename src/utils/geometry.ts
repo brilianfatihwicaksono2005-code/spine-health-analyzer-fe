@@ -1,5 +1,5 @@
 // ============================================================
-// src/utils/geometry.ts — 7 landmarks → 6 spinopelvic features
+// src/utils/geometry.ts - 7 landmarks to 6 spinopelvic features
 // ============================================================
 
 import type { Landmarks, SpinopelvicFeatures, Point } from '../types/spine';
