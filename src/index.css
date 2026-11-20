@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+:root {
+  font-family: "Geist", "Inter", system-ui, sans-serif;
+  color: #00183A;
+  background: #F2F2F2;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --navy: #00183A;
+  --apricot: #F59659;
+  --apricot-hover: #E28346;
+  --mist: #F2F2F2;
+  --clinical-white: #FFFFFF;
+  --hairline: #E2E8F0;
+  --control: #CBD5E1;
+  --muted: #475569;
+  --caption: #64748B;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--mist); }
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--mist);
+  font-family: "Geist", "Inter", system-ui, sans-serif;
+}
+
+button, input, select, textarea { font: inherit; }
+button, input, select { border-radius: 4px; }
+svg { stroke-width: 1.5; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+h1, h2, h3, h4, h5, h6 { color: var(--navy); letter-spacing: -0.02em; }
+
+.eyebrow, [data-eyebrow] {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--caption); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.eyebrow::before, [data-eyebrow]::before {
+  width: 5px; height: 5px; flex: 0 0 5px;
+  background: var(--navy); content: "";
+}
+
+.tabular-nums, table, input[type="number"], input[type="range"], .numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+input[type="range"] {
+  width: 100%; height: 4px; appearance: none;
+  border: 0; border-radius: 2px; background: var(--hairline); outline: none;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 2px; background: transparent;
+}
+input[type="range"]::-webkit-slider-thumb {
+  width: 14px; height: 14px; margin-top: -5px; appearance: none;
+  border: 2px solid #FFFFFF; border-radius: 50%; background: var(--navy);
+  box-shadow: 0 0 0 1px var(--navy);
+}
+input[type="range"]::-moz-range-track {
+  height: 4px; border: 0; border-radius: 2px; background: var(--hairline);
+}
+input[type="range"]::-moz-range-progress {
+  height: 4px; border-radius: 2px; background: var(--navy);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 12px; height: 12px; border: 2px solid #FFFFFF;
+  border-radius: 50%; background: var(--navy); box-shadow: 0 0 0 1px var(--navy);
+}
